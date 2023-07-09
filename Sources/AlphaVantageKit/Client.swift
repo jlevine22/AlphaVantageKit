@@ -37,7 +37,7 @@ public class Client {
     }
     
     let task = session.dataTask(with: url, completionHandler: { data, response, error in
-      guard error != nil else {
+      guard error == nil else {
         finish(.networkError(error!))
         return
       }
