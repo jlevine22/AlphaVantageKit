@@ -7,12 +7,16 @@
 
 import Foundation
 
-struct GlobalQuoteRq : ApiRequest {
-  typealias Response = GlobalQuoteRs
+public struct GlobalQuoteRequest: ApiRequest {
+  public typealias Response = GlobalQuoteResponse
 
-  let symbol: String
-
-  var queryItems: [URLQueryItem] {
+  public let symbol: String
+  
+  public init(symbol: String) {
+    self.symbol = symbol
+  }
+  
+  public var queryItems: [URLQueryItem] {
     return [
       URLQueryItem(name: "function", value: "GLOBAL_QUOTE"),
       URLQueryItem(name: "symbol", value: symbol),
@@ -20,7 +24,7 @@ struct GlobalQuoteRq : ApiRequest {
   }
 }
 
-public struct GlobalQuoteRs: Decodable {
+public struct GlobalQuoteResponse: Decodable {
   public struct Quote: Decodable {
     public var symbol: String
     public var open: String

@@ -7,8 +7,8 @@
 
 import Foundation
 
-protocol ApiRequest {
-  associatedtype Response
+public protocol ApiRequest {
+  associatedtype Response: Decodable
 
   var queryItems: [URLQueryItem] { get }
 }

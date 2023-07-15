@@ -25,55 +25,62 @@ public class Client {
     session = URLSession(configuration: .default)
     builder = URLBuilder(components: components, secret: key)
   }
-
-  public func quote(symbol: String, completion: @escaping (ApiResult<GlobalQuoteRs>) -> Void) {
-    let rq = GlobalQuoteRq(symbol: symbol)
-    let url = builder.buildURL(rq)
-
-    let finish = { (result: ApiResult<GlobalQuoteRs>) in
-      DispatchQueue.main.async {
-        completion(result)
-      }
-    }
     
-    let task = session.dataTask(with: url, completionHandler: { data, response, error in
-      guard error == nil else {
-        finish(.networkError(error!))
-        return
-      }
-      guard let httpResponse = response as? HTTPURLResponse else {
-        finish(.httpError(statusCode: -1))
-        return
-      }
-      guard httpResponse.statusCode == 200 else {
-        finish(.httpError(statusCode: httpResponse.statusCode))
-        return
-      }
-      let decoder = JSONDecoder()
-      do {
-        let payload = try decoder.decode(GlobalQuoteRs.self, from: data!)
-        finish(.success(payload))
-      }
-      catch {
-        finish(.decodingError(error))
-      }
-    })
-    task.resume()
+  public func execute<RequestType: ApiRequest>(_ request: RequestType) async throws -> RequestType.Response {
+    let url = builder.buildURL(request)
+    let urlRequest = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
+    let (data, _) = try await session.data(for: urlRequest)
+    return try JSONDecoder().decode(RequestType.Response.self, from: data)
   }
 
-  public func search(keywords: String, completion: @escaping (SymbolSearchRs?) -> Void) {
-    let rq = SymbolSearchRq(keywords: keywords)
-    let url = builder.buildURL(rq)
+//  public func quote(symbol: String, completion: @escaping (ApiResult<GlobalQuoteRs>) -> Void) {
+//    let rq = GlobalQuoteRq(symbol: symbol)
+//    let url = builder.buildURL(rq)
+//
+//    let finish = { (result: ApiResult<GlobalQuoteRs>) in
+//      DispatchQueue.main.async {
+//        completion(result)
+//      }
+//    }
+//    
+//    let task = session.dataTask(with: url, completionHandler: { data, response, error in
+//      guard error == nil else {
+//        finish(.networkError(error!))
+//        return
+//      }
+//      guard let httpResponse = response as? HTTPURLResponse else {
+//        finish(.httpError(statusCode: -1))
+//        return
+//      }
+//      guard httpResponse.statusCode == 200 else {
+//        finish(.httpError(statusCode: httpResponse.statusCode))
+//        return
+//      }
+//      let decoder = JSONDecoder()
+//      do {
+//        let payload = try decoder.decode(GlobalQuoteRs.self, from: data!)
+//        finish(.success(payload))
+//      }
+//      catch {
+//        finish(.decodingError(error))
+//      }
+//    })
+//    task.resume()
+//  }
 
-    let task = session.dataTask(with: url, completionHandler: { data, response, error in
-      let decoder = JSONDecoder()
-      let rs = try? decoder.decode(SymbolSearchRs.self, from: data!)
-      DispatchQueue.main.async {
-        completion(rs)
-      }
-    })
-    task.resume()
-  }
+//  public func search(keywords: String, completion: @escaping (SymbolSearchRs?) -> Void) {
+//    let rq = SymbolSearchRq(keywords: keywords)
+//    let url = builder.buildURL(rq)
+//
+//    let task = session.dataTask(with: url, completionHandler: { data, response, error in
+//      let decoder = JSONDecoder()
+//      let rs = try? decoder.decode(SymbolSearchRs.self, from: data!)
+//      DispatchQueue.main.async {
+//        completion(rs)
+//      }
+//    })
+//    task.resume()
+//  }
 
   struct URLBuilder {
     let components: URLComponents

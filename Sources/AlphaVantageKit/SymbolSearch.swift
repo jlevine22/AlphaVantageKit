@@ -7,12 +7,16 @@
 
 import Foundation
 
-struct SymbolSearchRq : ApiRequest {
-  typealias Response = SymbolSearchRs
+public struct SymbolSearchRequest: ApiRequest {
+  public typealias Response = SymbolSearchResponse
 
-  let keywords: String
+  public let keywords: String
+    
+  public init(keywords: String) {
+    self.keywords = keywords
+  }
 
-  var queryItems: [URLQueryItem] {
+  public var queryItems: [URLQueryItem] {
     return [
       URLQueryItem(name: "function", value: "SYMBOL_SEARCH"),
       URLQueryItem(name: "keywords", value: keywords),
@@ -20,7 +24,7 @@ struct SymbolSearchRq : ApiRequest {
   }
 }
 
-public struct SymbolSearchRs : Decodable {
+public struct SymbolSearchResponse : Decodable {
 
   public struct Match : Codable {
     public var symbol: String
