@@ -5,16 +5,16 @@
 //  Created by Eugene Rysaj on 05.03.2020.
 //
 
-public struct Date : Equatable, Hashable, Comparable {
+public struct AVDate : Equatable, Hashable, Comparable {
   public let year: Int16
   public let month: Int8
   public let day: Int8
 
-  public static func == (lhs: Date, rhs: Date) -> Bool {
+  public static func == (lhs: AVDate, rhs: AVDate) -> Bool {
     return lhs.year == rhs.year && lhs.month == rhs.month && lhs.day == rhs.day
   }
 
-  public static func < (lhs: Date, rhs: Date) -> Bool {
+  public static func < (lhs: AVDate, rhs: AVDate) -> Bool {
     if lhs.year != rhs.year {
       return lhs.year < rhs.year
     }
@@ -28,9 +28,9 @@ public struct Date : Equatable, Hashable, Comparable {
   }
 }
 
-extension Date : LosslessStringConvertible {
+extension AVDate : LosslessStringConvertible {
   public init?(_ description: String) {
-    switch Date.parse(description) {
+    switch AVDate.parse(description) {
     case .success(let date):
       year = date.year
       month = date.month
@@ -52,7 +52,7 @@ extension Date : LosslessStringConvertible {
   }
 
   enum ParserResult {
-    case success(Date)
+    case success(AVDate)
     case failure(ParserError)
   }
 
@@ -118,7 +118,7 @@ extension Date : LosslessStringConvertible {
     func finish() -> ParserResult {
       switch self {
       case .dd(11, let year, let month, let day):
-        let date = Date(year: Int16(year), month: Int8(month), day: Int8(day))
+        let date = AVDate(year: Int16(year), month: Int8(month), day: Int8(day))
         return .success(date)
       case .dd(let pos, _, _, _):
         return .failure(.init(pos: pos, reason: "Unexpected end"))
@@ -141,11 +141,11 @@ extension Date : LosslessStringConvertible {
   }
 }
 
-extension Date : Decodable {
+extension AVDate : Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     let text = try container.decode(String.self)
-    switch Date.parse(text) {
+    switch AVDate.parse(text) {
     case .success(let date):
       self.init(year: date.year, month: date.month, day: date.day)
     case .failure(let err):

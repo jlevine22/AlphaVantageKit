@@ -16,6 +16,7 @@ public enum ApiResult<Rs> {
   case networkError(Error)
 }
 
+@available(macOS 12.0, *)
 public class Client {
   let session: URLSession
   let builder: URLBuilder
@@ -28,7 +29,7 @@ public class Client {
     
   public func execute<RequestType: ApiRequest>(_ request: RequestType) async throws -> RequestType.Response {
     let url = builder.buildURL(request)
-    let urlRequest = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
+    let urlRequest = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy)
     let (data, _) = try await session.data(for: urlRequest)
     return try JSONDecoder().decode(RequestType.Response.self, from: data)
   }
